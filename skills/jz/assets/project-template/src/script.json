@@ -10,7 +10,7 @@
   "scenes": [
     {
       "id": "wide",
-      "title": "盛唐长安全景",
+      "title": "??????",
       "durationSec": 5.2,
       "voiceover": "audio/voice/01-wide.wav",
       "background": {
@@ -22,7 +22,7 @@
         {
           "start": 0.3,
           "end": 4.8,
-          "text": "万国衣冠拜冕旒，盛唐气象在此展开。"
+          "text": "???????,?????????"
         }
       ],
       "layers": [
@@ -51,6 +51,17 @@
           "sfx": "audio/sfx/whoosh.wav"
         },
         {
+          "id": "source-card-placeholder",
+          "src": "assets/source-shots/source-card-placeholder.png",
+          "role": "decor",
+          "x": 1470,
+          "y": 420,
+          "width": 420,
+          "z": 6,
+          "delay": 26,
+          "from": "right"
+        },
+        {
           "id": "wide-right-crowd",
           "src": "assets/layers/wide-right-crowd.png",
           "role": "tertiary",
@@ -66,7 +77,7 @@
     },
     {
       "id": "close",
-      "title": "万邦来朝特写",
+      "title": "??????",
       "durationSec": 5.4,
       "voiceover": "audio/voice/02-close.wav",
       "background": {
@@ -78,7 +89,7 @@
         {
           "start": 0.25,
           "end": 4.9,
-          "text": "主角、配角和前景错峰进入，画面才有层次。"
+          "text": "????????????,???????"
         }
       ],
       "layers": [

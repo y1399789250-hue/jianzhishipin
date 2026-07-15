@@ -1,8 +1,8 @@
 # assets
 
-把图片素材放在这里。
+??????????
 
-推荐结构：
+????:
 
 ```text
 assets/
@@ -17,7 +17,7 @@ assets/
     wide-right-crowd.png
 ```
 
-所有路径在 `src/script.json` 中都要相对 `public/` 书写，例如：
+????? `src/script.json` ????? `public/` ??,??:
 
 ```json
 "assets/layers/wide-emperor.png"

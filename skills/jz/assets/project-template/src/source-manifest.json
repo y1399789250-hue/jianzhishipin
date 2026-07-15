@@ -1,0 +1,15 @@
+{
+  "generatedAt": "2026-07-15",
+  "items": [
+    {
+      "id": "source-card-placeholder",
+      "sceneId": "wide",
+      "asset": "assets/source-shots/source-card-placeholder.png",
+      "sourceName": "Replace with source name",
+      "url": "https://example.com/source",
+      "accessedAt": "2026-07-15",
+      "claim": "Replace with the supported factual claim.",
+      "usage": "Placeholder source card; replace with a real cropped evidence screenshot."
+    }
+  ]
+}

@@ -3,8 +3,10 @@ import path from 'node:path';
 
 const cwd = process.cwd();
 const strictAssets = process.argv.includes('--strict-assets');
+const withSources = process.argv.includes('--with-sources');
 const strictLayout = strictAssets || process.argv.includes('--strict-layout');
 const scriptPath = path.join(cwd, 'src', 'script.json');
+const sourceManifestPath = path.join(cwd, 'src', 'source-manifest.json');
 const publicDir = path.join(cwd, 'public');
 const allowedRoles = new Set(['primary', 'secondary', 'tertiary', 'decor']);
 const allowedDirections = new Set(['left', 'right', 'top', 'bottom', 'none', undefined]);
@@ -79,6 +81,8 @@ const checkAsset = (label, relativePath) => {
 };
 
 const script = readJson(scriptPath);
+const sceneIds = new Set();
+const layerAssetPaths = new Set();
 
 if (script) {
   if (!script.meta || typeof script.meta !== 'object') {
@@ -94,8 +98,6 @@ if (script) {
   if (!Array.isArray(script.scenes) || script.scenes.length === 0) {
     errors.push('scenes must be a non-empty array');
   } else {
-    const sceneIds = new Set();
-
     script.scenes.forEach((scene, sceneIndex) => {
       const sceneLabel = `scene[${sceneIndex}]`;
 
@@ -143,7 +145,11 @@ if (script) {
             layerIds.add(layer.id);
           }
 
-          if (!layer.src) errors.push(`${layerLabel}.src is required`);
+          if (!layer.src) {
+            errors.push(`${layerLabel}.src is required`);
+          } else {
+            layerAssetPaths.add(layer.src);
+          }
           checkAsset(`${layerLabel}.src`, layer.src);
           checkAsset(`${layerLabel}.sfx`, layer.sfx);
 
@@ -213,6 +219,72 @@ if (script) {
         }
       }
     });
+  }
+}
+
+if (withSources) {
+  const sourceManifest = readJson(sourceManifestPath);
+
+  if (!sourceManifest) {
+    errors.push('src/source-manifest.json is required when --with-sources is used');
+  } else {
+    if (!sourceManifest.generatedAt || typeof sourceManifest.generatedAt !== 'string') {
+      errors.push('source-manifest.generatedAt is required');
+    }
+
+    if (!Array.isArray(sourceManifest.items) || sourceManifest.items.length === 0) {
+      errors.push('source-manifest.items must be a non-empty array');
+    } else {
+      const sourceIds = new Set();
+      let sourceCardLayers = 0;
+
+      sourceManifest.items.forEach((item, itemIndex) => {
+        const itemLabel = `source-manifest.items[${itemIndex}]`;
+
+        if (!item || typeof item !== 'object') {
+          errors.push(`${itemLabel} must be an object`);
+          return;
+        }
+
+        if (!item.id || typeof item.id !== 'string') {
+          errors.push(`${itemLabel}.id is required`);
+        } else if (sourceIds.has(item.id)) {
+          errors.push(`source manifest id duplicated: ${item.id}`);
+        } else {
+          sourceIds.add(item.id);
+        }
+
+        if (!item.sceneId || typeof item.sceneId !== 'string') {
+          errors.push(`${itemLabel}.sceneId is required`);
+        } else if (sceneIds.size && !sceneIds.has(item.sceneId)) {
+          errors.push(`${itemLabel}.sceneId does not match src/script.json: ${item.sceneId}`);
+        }
+
+        if (!item.asset || typeof item.asset !== 'string') {
+          errors.push(`${itemLabel}.asset is required`);
+        } else {
+          checkAsset(`${itemLabel}.asset`, item.asset);
+          if (layerAssetPaths.has(item.asset)) {
+            sourceCardLayers += 1;
+          } else {
+            errors.push(`${itemLabel}.asset is not used as a layer in src/script.json: ${item.asset}`);
+          }
+        }
+
+        if (!item.sourceName || typeof item.sourceName !== 'string') errors.push(`${itemLabel}.sourceName is required`);
+        if (!item.claim || typeof item.claim !== 'string') errors.push(`${itemLabel}.claim is required`);
+        if (!item.url || typeof item.url !== 'string' || !/^https?:\/\//.test(item.url)) {
+          errors.push(`${itemLabel}.url must be an http(s) URL`);
+        }
+        if (!item.accessedAt || typeof item.accessedAt !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(item.accessedAt)) {
+          errors.push(`${itemLabel}.accessedAt must use YYYY-MM-DD`);
+        }
+      });
+
+      if (sourceCardLayers === 0) {
+        errors.push('At least one source manifest asset must be inserted as a script layer');
+      }
+    }
   }
 }
 
