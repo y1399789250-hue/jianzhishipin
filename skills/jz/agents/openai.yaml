@@ -1,0 +1,4 @@
+interface:
+  display_name: "JZ Paper Cut Video"
+  short_description: "Build reusable layered paper-cut Remotion videos"
+  default_prompt: "Use $jz to turn my script into a layered paper-cut Remotion video workflow."
