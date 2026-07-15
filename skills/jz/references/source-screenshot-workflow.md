@@ -26,8 +26,8 @@ public/assets/source-shots/
 4. Use clear file names:
 
 ```text
-assets/source-shots/nih-dha-pregnancy-fetal-brain.png
-assets/source-shots/fda-epa-low-mercury-fish-advice.png
+assets/source-shots/official-guidance-key-claim.png
+assets/source-shots/source-table-data-point.png
 ```
 
 5. Source-card layers go into `src/script.json` as normal `decor` layers. Keep them inside the safe frame, readable, and away from captions.
@@ -41,14 +41,14 @@ Create `src/source-manifest.json` for every source-backed project:
   "generatedAt": "2026-07-15",
   "items": [
     {
-      "id": "nih-dha-pregnancy",
+      "id": "official-source-key-claim",
       "sceneId": "scene-02",
-      "asset": "assets/source-shots/nih-dha-pregnancy-fetal-brain.png",
-      "sourceName": "NIH Office of Dietary Supplements",
-      "url": "https://ods.od.nih.gov/factsheets/Pregnancy-HealthProfessional/",
+      "asset": "assets/source-shots/official-guidance-key-claim.png",
+      "sourceName": "Replace with official source name",
+      "url": "https://example.com/source",
       "accessedAt": "2026-07-15",
-      "claim": "DHA is important for fetal brain and eye development.",
-      "usage": "Small evidence card shown while explaining why DHA matters."
+      "claim": "Replace with the specific supported claim.",
+      "usage": "Small evidence card shown while explaining the claim."
     }
   ]
 }

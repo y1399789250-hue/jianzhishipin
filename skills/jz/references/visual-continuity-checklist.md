@@ -5,8 +5,9 @@ Use this checklist for every `$jz` project with recurring characters or objects.
 ## Character Lock
 
 - [ ] `src/continuity-manifest.json` exists.
-- [ ] Every recurring character has a canonical `referenceAsset`.
-- [ ] Locked traits include hair, face style, skin tone, clothing, palette, body shape, and state such as pregnant/not pregnant.
+- [ ] The protagonist or continuity target was selected from the current title, brief, and script, not copied from a previous episode.
+- [ ] Every recurring character, object, product, mascot, or visual metaphor has a canonical `referenceAsset` when it appears in multiple scenes.
+- [ ] Locked traits include script-defined identity, face/object style, palette, shape, clothing or surface details, and story state.
 - [ ] Allowed and forbidden changes are explicit.
 
 ## Asset Generation
