@@ -1,0 +1,40 @@
+{
+  "generatedAt": "2026-07-15",
+  "characters": [
+    {
+      "id": "main-character-placeholder",
+      "displayName": "Replace with main character name",
+      "referenceAsset": "assets/characters/main-character-reference.png",
+      "lockedTraits": [
+        "replace with locked hair style and color",
+        "replace with locked outfit and palette",
+        "replace with locked body shape and character state",
+        "replace with locked paper-cut face style"
+      ],
+      "allowedChanges": [
+        "pose",
+        "head direction",
+        "small facial expression change"
+      ],
+      "forbiddenChanges": [
+        "different hair color",
+        "different outfit color",
+        "different body state",
+        "switching to an unrelated abstract silhouette"
+      ],
+      "scenes": [
+        "wide"
+      ]
+    }
+  ],
+  "sceneContinuity": [
+    {
+      "sceneId": "wide",
+      "characterId": "main-character-placeholder",
+      "expectedLayerIds": [
+        "emperor"
+      ],
+      "continuityNote": "Placeholder; replace with the accepted canonical character for the episode."
+    }
+  ]
+}

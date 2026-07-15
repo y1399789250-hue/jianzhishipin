@@ -1,4 +1,4 @@
 interface:
   display_name: "JZ Paper Cut Video"
-  short_description: "Build source-backed paper-cut Remotion videos"
+  short_description: "Build sourced, consistent paper-cut videos"
   default_prompt: "Use $jz --with-sources to turn my topic into a source-backed layered paper-cut video workflow."

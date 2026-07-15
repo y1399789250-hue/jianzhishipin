@@ -4,9 +4,11 @@ import path from 'node:path';
 const cwd = process.cwd();
 const strictAssets = process.argv.includes('--strict-assets');
 const withSources = process.argv.includes('--with-sources');
+const withContinuity = process.argv.includes('--with-continuity');
 const strictLayout = strictAssets || process.argv.includes('--strict-layout');
 const scriptPath = path.join(cwd, 'src', 'script.json');
 const sourceManifestPath = path.join(cwd, 'src', 'source-manifest.json');
+const continuityManifestPath = path.join(cwd, 'src', 'continuity-manifest.json');
 const publicDir = path.join(cwd, 'public');
 const allowedRoles = new Set(['primary', 'secondary', 'tertiary', 'decor']);
 const allowedDirections = new Set(['left', 'right', 'top', 'bottom', 'none', undefined]);
@@ -83,6 +85,7 @@ const checkAsset = (label, relativePath) => {
 const script = readJson(scriptPath);
 const sceneIds = new Set();
 const layerAssetPaths = new Set();
+const sceneLayerIds = new Map();
 
 if (script) {
   if (!script.meta || typeof script.meta !== 'object') {
@@ -200,6 +203,10 @@ if (script) {
           }
         });
 
+        if (scene.id) {
+          sceneLayerIds.set(scene.id, layerIds);
+        }
+
         for (let firstIndex = 0; firstIndex < layerBounds.length; firstIndex += 1) {
           for (let secondIndex = firstIndex + 1; secondIndex < layerBounds.length; secondIndex += 1) {
             const first = layerBounds[firstIndex];
@@ -219,6 +226,105 @@ if (script) {
         }
       }
     });
+  }
+}
+
+if (withContinuity) {
+  const continuityManifest = readJson(continuityManifestPath);
+
+  if (!continuityManifest) {
+    errors.push('src/continuity-manifest.json is required when --with-continuity is used');
+  } else {
+    if (!continuityManifest.generatedAt || typeof continuityManifest.generatedAt !== 'string') {
+      errors.push('continuity-manifest.generatedAt is required');
+    }
+
+    const characterIds = new Set();
+
+    if (!Array.isArray(continuityManifest.characters) || continuityManifest.characters.length === 0) {
+      errors.push('continuity-manifest.characters must be a non-empty array');
+    } else {
+      continuityManifest.characters.forEach((character, characterIndex) => {
+        const characterLabel = `continuity-manifest.characters[${characterIndex}]`;
+
+        if (!character || typeof character !== 'object') {
+          errors.push(`${characterLabel} must be an object`);
+          return;
+        }
+
+        if (!character.id || typeof character.id !== 'string') {
+          errors.push(`${characterLabel}.id is required`);
+        } else if (characterIds.has(character.id)) {
+          errors.push(`continuity character id duplicated: ${character.id}`);
+        } else {
+          characterIds.add(character.id);
+        }
+
+        if (!character.displayName || typeof character.displayName !== 'string') {
+          errors.push(`${characterLabel}.displayName is required`);
+        }
+
+        if (!character.referenceAsset || typeof character.referenceAsset !== 'string') {
+          errors.push(`${characterLabel}.referenceAsset is required`);
+        } else {
+          checkAsset(`${characterLabel}.referenceAsset`, character.referenceAsset);
+        }
+
+        if (!Array.isArray(character.lockedTraits) || character.lockedTraits.length < 3) {
+          errors.push(`${characterLabel}.lockedTraits must include at least 3 stable visual traits`);
+        }
+
+        if (!Array.isArray(character.forbiddenChanges) || character.forbiddenChanges.length === 0) {
+          errors.push(`${characterLabel}.forbiddenChanges must list visual drift to reject`);
+        }
+
+        if (!Array.isArray(character.scenes) || character.scenes.length === 0) {
+          errors.push(`${characterLabel}.scenes must be a non-empty array`);
+        } else {
+          character.scenes.forEach((sceneId) => {
+            if (!sceneIds.has(sceneId)) {
+              errors.push(`${characterLabel}.scenes references missing scene: ${sceneId}`);
+            }
+          });
+        }
+      });
+    }
+
+    if (!Array.isArray(continuityManifest.sceneContinuity) || continuityManifest.sceneContinuity.length === 0) {
+      errors.push('continuity-manifest.sceneContinuity must be a non-empty array');
+    } else {
+      continuityManifest.sceneContinuity.forEach((entry, entryIndex) => {
+        const entryLabel = `continuity-manifest.sceneContinuity[${entryIndex}]`;
+
+        if (!entry || typeof entry !== 'object') {
+          errors.push(`${entryLabel} must be an object`);
+          return;
+        }
+
+        if (!entry.sceneId || typeof entry.sceneId !== 'string') {
+          errors.push(`${entryLabel}.sceneId is required`);
+        } else if (!sceneIds.has(entry.sceneId)) {
+          errors.push(`${entryLabel}.sceneId does not match src/script.json: ${entry.sceneId}`);
+        }
+
+        if (!entry.characterId || typeof entry.characterId !== 'string') {
+          errors.push(`${entryLabel}.characterId is required`);
+        } else if (characterIds.size && !characterIds.has(entry.characterId)) {
+          errors.push(`${entryLabel}.characterId does not match continuity-manifest.characters: ${entry.characterId}`);
+        }
+
+        if (!Array.isArray(entry.expectedLayerIds) || entry.expectedLayerIds.length === 0) {
+          errors.push(`${entryLabel}.expectedLayerIds must list the character layer ids in the scene`);
+        } else if (entry.sceneId && sceneLayerIds.has(entry.sceneId)) {
+          const layerIds = sceneLayerIds.get(entry.sceneId);
+          entry.expectedLayerIds.forEach((layerId) => {
+            if (!layerIds.has(layerId)) {
+              errors.push(`${entryLabel}.expectedLayerIds references missing layer in scene ${entry.sceneId}: ${layerId}`);
+            }
+          });
+        }
+      });
+    }
   }
 }
 
