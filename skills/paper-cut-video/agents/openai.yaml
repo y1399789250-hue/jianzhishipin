@@ -1,0 +1,5 @@
+interface:
+  display_name: "Paper Cut Video"
+  short_description: "Build reusable layered paper-cut Remotion videos"
+  default_prompt: "Use $paper-cut-video to turn my script into a layered paper-cut Remotion video workflow."
+
