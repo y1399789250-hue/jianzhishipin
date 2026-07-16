@@ -25,6 +25,24 @@
           "text": "???????,?????????"
         }
       ],
+      "sfxEvents": [
+        {
+          "id": "scene-open-paper-pop",
+          "src": "audio/sfx/paper-pop.wav",
+          "atSec": 0.25,
+          "volume": 0.22,
+          "durationSec": 1.2,
+          "label": "Opening paper layer appears."
+        },
+        {
+          "id": "source-card-paper-tap",
+          "src": "audio/sfx/paper-tap.wav",
+          "atSec": 0.9,
+          "volume": 0.2,
+          "durationSec": 1,
+          "label": "Source card sticks to the scene."
+        }
+      ],
       "layers": [
         {
           "id": "emperor",
@@ -90,6 +108,24 @@
           "start": 0.25,
           "end": 4.9,
           "text": "????????????,???????"
+        }
+      ],
+      "sfxEvents": [
+        {
+          "id": "primary-soft-land",
+          "src": "audio/sfx/soft-land.wav",
+          "atSec": 0.35,
+          "volume": 0.28,
+          "durationSec": 1.1,
+          "label": "Primary subject settles into place."
+        },
+        {
+          "id": "page-swipe-out",
+          "src": "audio/sfx/page-swipe.wav",
+          "atSec": 4.8,
+          "volume": 0.2,
+          "durationSec": 0.8,
+          "label": "Paper transition out."
         }
       ],
       "layers": [

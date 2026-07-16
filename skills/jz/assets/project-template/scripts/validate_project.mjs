@@ -5,6 +5,7 @@ const cwd = process.cwd();
 const strictAssets = process.argv.includes('--strict-assets');
 const withSources = process.argv.includes('--with-sources');
 const withContinuity = process.argv.includes('--with-continuity');
+const withAudioEvents = process.argv.includes('--with-audio-events');
 const strictLayout = strictAssets || process.argv.includes('--strict-layout');
 const scriptPath = path.join(cwd, 'src', 'script.json');
 const sourceManifestPath = path.join(cwd, 'src', 'source-manifest.json');
@@ -86,6 +87,7 @@ const script = readJson(scriptPath);
 const sceneIds = new Set();
 const layerAssetPaths = new Set();
 const sceneLayerIds = new Map();
+let sfxEventCount = 0;
 
 if (script) {
   if (!script.meta || typeof script.meta !== 'object') {
@@ -128,6 +130,52 @@ if (script) {
             if (caption.end <= caption.start) errors.push(`${captionLabel}.end must be greater than start`);
             if (caption.end > scene.durationSec) warnings.push(`${captionLabel}.end exceeds scene.durationSec`);
             if (!caption.text) errors.push(`${captionLabel}.text is required`);
+          });
+        }
+      }
+
+      if (scene.sfxEvents !== undefined) {
+        if (!Array.isArray(scene.sfxEvents)) {
+          errors.push(`${sceneLabel}.sfxEvents must be an array`);
+        } else {
+          const eventIds = new Set();
+          scene.sfxEvents.forEach((event, eventIndex) => {
+            const eventLabel = `${sceneLabel}.sfxEvents[${eventIndex}]`;
+
+            if (!event || typeof event !== 'object') {
+              errors.push(`${eventLabel} must be an object`);
+              return;
+            }
+
+            if (!event.id || typeof event.id !== 'string') {
+              errors.push(`${eventLabel}.id is required`);
+            } else if (eventIds.has(event.id)) {
+              errors.push(`${sceneLabel} sfx event id duplicated: ${event.id}`);
+            } else {
+              eventIds.add(event.id);
+            }
+
+            if (!event.src || typeof event.src !== 'string') {
+              errors.push(`${eventLabel}.src is required`);
+            } else {
+              checkAsset(`${eventLabel}.src`, event.src);
+            }
+
+            if (!isNumber(event.atSec) || event.atSec < 0) {
+              errors.push(`${eventLabel}.atSec must be >= 0`);
+            } else if (isNumber(scene.durationSec) && event.atSec > scene.durationSec) {
+              errors.push(`${eventLabel}.atSec exceeds scene.durationSec`);
+            }
+
+            if (event.volume !== undefined && (!isNumber(event.volume) || event.volume < 0 || event.volume > 1)) {
+              errors.push(`${eventLabel}.volume must be between 0 and 1`);
+            }
+
+            if (event.durationSec !== undefined && (!isNumber(event.durationSec) || event.durationSec <= 0)) {
+              errors.push(`${eventLabel}.durationSec must be > 0`);
+            }
+
+            sfxEventCount += 1;
           });
         }
       }
@@ -227,6 +275,10 @@ if (script) {
       }
     });
   }
+}
+
+if (withAudioEvents && sfxEventCount === 0) {
+  errors.push('At least one scene.sfxEvents entry is required when --with-audio-events is used');
 }
 
 if (withContinuity) {

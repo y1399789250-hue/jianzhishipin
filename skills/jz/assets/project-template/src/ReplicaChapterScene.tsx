@@ -117,7 +117,7 @@ const Caption: FC<{scene: Scene}> = ({scene}) => {
 
 export const ReplicaChapterScene: FC<{scene: Scene}> = ({scene}) => {
   const frame = useCurrentFrame();
-  const {durationInFrames} = useVideoConfig();
+  const {durationInFrames, fps} = useVideoConfig();
   const bgParallax = scene.background.parallax ?? 0.01;
   const bgScale = 1 + bgParallax * (frame / Math.max(1, durationInFrames));
   const sortedLayers = [...scene.layers].sort((a, b) => a.z - b.z);
@@ -138,6 +138,17 @@ export const ReplicaChapterScene: FC<{scene: Scene}> = ({scene}) => {
       />
 
       {scene.voiceover ? <Audio src={staticFile(scene.voiceover)} volume={scene.voiceVolume ?? 1} /> : null}
+
+      {scene.sfxEvents?.map((event) => {
+        const from = Math.max(0, Math.round(event.atSec * fps));
+        const duration = Math.max(1, Math.min(durationInFrames - from, Math.ceil((event.durationSec ?? 2) * fps)));
+
+        return (
+          <Sequence key={`scene-sfx-${event.id}`} from={from} durationInFrames={duration}>
+            <Audio src={staticFile(event.src)} volume={event.volume ?? 0.28} />
+          </Sequence>
+        );
+      })}
 
       {sortedLayers.map((layer) => (
         <LayerImage key={layer.id} layer={layer} />

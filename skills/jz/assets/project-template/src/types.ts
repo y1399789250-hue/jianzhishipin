@@ -25,6 +25,7 @@ export type Scene = {
     parallax?: number;
   };
   captions?: Caption[];
+  sfxEvents?: SfxEvent[];
   layers: Layer[];
 };
 
@@ -32,6 +33,15 @@ export type Caption = {
   start: number;
   end: number;
   text: string;
+};
+
+export type SfxEvent = {
+  id: string;
+  src: string;
+  atSec: number;
+  volume?: number;
+  durationSec?: number;
+  label?: string;
 };
 
 export type Layer = {
